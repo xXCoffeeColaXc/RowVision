@@ -10,5 +10,6 @@ data class Session(
     val strokesPerMinute: Int?,            // e.g. 22
     val strokesCount: Int?,                // e.g. 200 (for interval)
     val distanceMeters: Int,               // e.g. 4500
+    val goalDistanceMeters: Int,
     val paceSecondsPer500m: Int            // e.g. 125  (2:05)
 )

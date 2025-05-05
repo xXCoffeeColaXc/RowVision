@@ -178,10 +178,12 @@ private fun SessionItem(
                     colors = AssistChipDefaults.assistChipColors(
                         containerColor = when (session.type) {
                             "Interval" -> UrgentOrange.copy(alpha = 0.2f)
+                            "Strength" -> AlertGreen.copy(alpha = 0.2f)
                             else       -> AquaTurquoise.copy(alpha = 0.2f)
                         },
                         labelColor = when (session.type) {
                             "Interval" -> UrgentOrange
+                            "Strength" -> AlertGreen
                             else       -> AquaTurquoise
                         }
                     ),
@@ -242,7 +244,7 @@ private fun SessionItem(
                 )
                 Spacer(Modifier.width(4.dp))
                 Text(
-                    "${session.distanceMeters} m",
+                    "${session.distanceMeters} /${session.goalDistanceMeters}m",
                     style = MaterialTheme.typography.bodyLarge,
                     color = DeepBlue
                 )

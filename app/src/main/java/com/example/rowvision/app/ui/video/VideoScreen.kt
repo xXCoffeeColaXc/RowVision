@@ -193,12 +193,14 @@ fun VideoScreen(
                     onClick = {
                         // build and save the session
                         val now = LocalDateTime.now()
+                        val goalMeter = if (goal == "500m") 500 else if(goal == "1km") 1000 else 5000
                         val session = Session(
                             id                   = sessionsVm.nextId(),
                             type                 = plan,
                             dateTime             = now,
                             durationSeconds      = durationSeconds,
                             distanceMeters       = distanceMeters,
+                            goalDistanceMeters   = goalMeter,
                             strokesPerMinute     = strokesPerMinute,
                             paceSecondsPer500m   = paceSecondsPer500m,
                             strokesCount         = null
