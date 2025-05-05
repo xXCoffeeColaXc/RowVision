@@ -13,12 +13,9 @@ import javax.inject.Inject
 class SessionsViewModel @Inject constructor(
     private val repo: SessionRepository
 ): ViewModel() {
-    private val _sessions = MutableStateFlow<List<Session>>(emptyList())
-    val sessions: StateFlow<List<Session>> = _sessions
+    /** Exposed as StateFlow so composables can collectAsState() */
+    val sessions = repo.sessions()
 
-    init {
-        viewModelScope.launch {
-            _sessions.value = repo.getSessions()
-        }
-    }
+    fun addSession(session: Session) = repo.addSession(session)
+    fun nextId(): Int = repo.nextSessionId()
 }

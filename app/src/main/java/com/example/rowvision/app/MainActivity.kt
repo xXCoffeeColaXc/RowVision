@@ -36,7 +36,7 @@ fun RowVisionApp() {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = "login"
+        startDestination = "home"
     ) {
         composable("login")    { LoginScreen(navController) }
         composable("home")     { HomeScreen(navController) }

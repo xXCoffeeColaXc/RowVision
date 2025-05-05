@@ -1,5 +1,6 @@
 package com.example.rowvision.app.ui.home
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
@@ -176,6 +177,14 @@ fun HomeScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SettingsSheet(onDone: () -> Unit) {
+
+    val homeVm: HomeViewModel = hiltViewModel()
+
+    val current by homeVm.settings.collectAsState()
+    var selectedWorkout  by remember { mutableStateOf(current.plan) }
+    var selectedInterval by remember { mutableStateOf(current.interval) }
+    var selectedGoal     by remember { mutableStateOf(current.goal) }
+
     // Sample options
     val workoutOptions  = listOf("Endurance", "Strength", "Interval")
     val intervalOptions = listOf("30s/30s", "1min/1min", "2min/1min")
@@ -183,13 +192,13 @@ private fun SettingsSheet(onDone: () -> Unit) {
 
     // State for each dropdown
     var workoutExpanded by remember { mutableStateOf(false) }
-    var selectedWorkout by remember { mutableStateOf(workoutOptions[0]) }
+    // var selectedWorkout by remember { mutableStateOf(workoutOptions[0]) }
 
     var intervalExpanded by remember { mutableStateOf(false) }
-    var selectedInterval by remember { mutableStateOf(intervalOptions[0]) }
+    // var selectedInterval by remember { mutableStateOf(intervalOptions[0]) }
 
     var goalExpanded by remember { mutableStateOf(false) }
-    var selectedGoal by remember { mutableStateOf(goalOptions[0]) }
+    // var selectedGoal by remember { mutableStateOf(goalOptions[0]) }
 
     Column(
         Modifier
@@ -227,7 +236,9 @@ private fun SettingsSheet(onDone: () -> Unit) {
                 trailingIcon = {
                     Icon(Icons.Default.ArrowDropDown, contentDescription = null)
                 },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor(),
                 colors = textFieldColors,
                 shape = RoundedCornerShape(12.dp)
             )
@@ -260,7 +271,9 @@ private fun SettingsSheet(onDone: () -> Unit) {
                 trailingIcon = {
                     Icon(Icons.Default.ArrowDropDown, contentDescription = null)
                 },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor(),
                 colors = textFieldColors,
                 shape = RoundedCornerShape(12.dp)
             )
@@ -293,7 +306,9 @@ private fun SettingsSheet(onDone: () -> Unit) {
                 trailingIcon = {
                     Icon(Icons.Default.ArrowDropDown, contentDescription = null)
                 },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor(),
                 colors = textFieldColors,
                 shape = RoundedCornerShape(12.dp)
             )
@@ -317,7 +332,13 @@ private fun SettingsSheet(onDone: () -> Unit) {
 
         // 5) Done button
         Button(
-            onClick = onDone,
+            onClick = {
+                homeVm.saveSettings(selectedWorkout, selectedInterval, selectedGoal)
+                Log.d("video", "Settings saved: ${homeVm.settings.value.plan}")
+                Log.d("video", "Settings saved: ${homeVm.settings.value.interval}")
+                Log.d("video", "Settings saved: ${homeVm.settings.value.goal}")
+                onDone()
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),

@@ -2,6 +2,7 @@ package com.example.rowvision.app.ui.video
 
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.tween
@@ -21,21 +22,55 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.rowvision.app.R
+import com.example.rowvision.app.data.model.Session
+import com.example.rowvision.app.ui.home.HomeViewModel
+import com.example.rowvision.app.ui.sessions.SessionsViewModel
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.RawResourceDataSource
 import kotlinx.coroutines.delay
+import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 
 @SuppressLint("UnusedBoxWithConstraintsScope", "DefaultLocale")
 @Composable
 fun VideoScreen(
-    navController: NavController
+    navController: NavController,
+    videoVM: VideoViewModel = hiltViewModel(),
+    sessionsVm: SessionsViewModel = hiltViewModel()
 ) {
+
+    val settings by videoVM.settings.collectAsState()
+    val plan     = settings.plan
+    val interval = settings.interval
+    val goal     = settings.goal
+
+    // 2) Kick off a timer
+    val startMillis = remember { System.currentTimeMillis() }
+    var elapsedMillis by remember { mutableLongStateOf(0L) }
+
+    LaunchedEffect(Unit) {
+        while(true) {
+            delay(1000L)
+            elapsedMillis = System.currentTimeMillis() - startMillis
+        }
+    }
+
+    // 3) Convert to your demo metrics
+    val durationSeconds   = (elapsedMillis / 1000L).toInt()
+    val distanceMeters    = durationSeconds * 2        // e.g. 2 m per second
+    val strokesPerMinute  = 30                         // dummy constant
+    val paceSecondsPer500m = if (distanceMeters > 0)
+        (durationSeconds * 500) / distanceMeters
+    else 0
+
+
+
     // 1) Prepare ExoPlayer (unchanged)
     val context = LocalContext.current
     val exoPlayer = remember {
@@ -155,7 +190,24 @@ fun VideoScreen(
                 horizontalArrangement = Arrangement.End
             ) {
                 IconButton(
-                    onClick = { navController.navigate("sessions") },
+                    onClick = {
+                        // build and save the session
+                        val now = LocalDateTime.now()
+                        val session = Session(
+                            id                   = sessionsVm.nextId(),
+                            type                 = plan,
+                            dateTime             = now,
+                            durationSeconds      = durationSeconds,
+                            distanceMeters       = distanceMeters,
+                            strokesPerMinute     = strokesPerMinute,
+                            paceSecondsPer500m   = paceSecondsPer500m,
+                            strokesCount         = null
+                        )
+                        sessionsVm.addSession(session)
+                        Log.d("video", "Session saved: $session")
+                        Log.d("video", "Every session: ${sessionsVm.sessions.value}")
+                        navController.navigate("sessions")
+                    },
                     modifier = Modifier
                         .size(86.dp)
                         .padding(4.dp)   // inset the icon slightly
